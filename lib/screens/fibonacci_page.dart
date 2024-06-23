@@ -15,6 +15,7 @@ class FibonacciPage extends StatefulWidget {
 }
 
 class _FibonacciPageState extends State<FibonacciPage> {
+  final ScrollController scrollController = ScrollController();
   late FibonacciController fibonacciController;
   Fibonacci? latestFibonacci;
 
@@ -25,6 +26,25 @@ class _FibonacciPageState extends State<FibonacciPage> {
       fibonacciController.initFibonacci();
     });
     super.initState();
+  }
+
+  void scrollToItem(Fibonacci fibonacci) {
+    if (fibonacciController.fibonacciList.isNotEmpty) {
+      final index = fibonacciController.fibonacciList.indexOf(fibonacci);
+      
+      const double itemHeight = 56;
+      final double screenHeight = MediaQuery.sizeOf(context).height;
+      final double maxExtent = scrollController.position.maxScrollExtent + 30;
+
+      double position = index * itemHeight - (screenHeight / 2 - itemHeight);
+      position = position.clamp(0, maxExtent);
+
+      scrollController.animateTo(
+        position,
+        duration: const Duration(seconds: 1),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -41,6 +61,7 @@ class _FibonacciPageState extends State<FibonacciPage> {
             ),
           ),
           body: ListView.builder(
+            controller: scrollController,
             itemCount: fibController.fibonacciList.length,
             itemBuilder: (context, index) {
               final fibonacci = fibController.fibonacciList[index];
@@ -58,11 +79,12 @@ class _FibonacciPageState extends State<FibonacciPage> {
                     ),
                     constraints: const BoxConstraints(minWidth: double.infinity),
                     builder: (ctx) {
-                      return FibonacciBottomSheetWidget(groupId: fibonacci.group.id, fibonacciId: fibonacci.id);
+                      return FibonacciBottomSheetWidget(groupId: fibonacci.group.id, fibonacci: fibonacci);
                     }
                   );
                   if (fibonacciData != null) {
                     latestFibonacci = fibonacciData;
+                    scrollToItem(fibonacciData);
                   }
                 },
                 child: FibonacciItemWidget(fibonacci: fibonacci, highlightColor: latestFibonacci?.id == fibonacci.id ? red : null)

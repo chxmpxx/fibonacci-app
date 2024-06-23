@@ -22,8 +22,8 @@ class FibonacciController extends ChangeNotifier {
   void addFibonacciItem(Fibonacci fibonacci) {
     fibonacciList.remove(fibonacci);
     if (fibonacciGroupList.containsKey(fibonacci.group.id)) {
-      // todo: sort
-      fibonacciGroupList[fibonacci.group.id]!.add(fibonacci);
+      int index = _binarySearch(list: fibonacciGroupList[fibonacci.group.id]!, fibonacci: fibonacci);
+      fibonacciGroupList[fibonacci.group.id]!.insert(index, fibonacci);
     } else {
       fibonacciGroupList[fibonacci.group.id] = [fibonacci];
     }
@@ -33,8 +33,8 @@ class FibonacciController extends ChangeNotifier {
   void removeFibonacciItem(Fibonacci fibonacci) {
     if (fibonacciGroupList.containsKey(fibonacci.group.id)) {
       fibonacciGroupList[fibonacci.group.id]!.remove(fibonacci);
-      // todo: sort
-      fibonacciList.add(fibonacci);
+      int index = _binarySearch(list: fibonacciList, fibonacci: fibonacci);
+      fibonacciList.insert(index, fibonacci);
       notifyListeners();
     }
   }
@@ -62,5 +62,20 @@ class FibonacciController extends ChangeNotifier {
     final random = Random();
     int index = random.nextInt(groups.length);
     return groups[index];
+  }
+
+  int _binarySearch({required List<Fibonacci> list, required Fibonacci fibonacci}) {
+    int low = 0;
+    int high = list.length;
+
+    while (low < high) {
+      int mid = (low + high) ~/ 2;
+      if (int.parse(list[mid].id) < int.parse(fibonacci.id)) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    return low;
   }
 }

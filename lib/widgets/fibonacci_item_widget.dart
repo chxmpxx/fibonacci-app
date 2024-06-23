@@ -10,8 +10,9 @@ class FibonacciItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 56,
       color: highlightColor,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
           Text('Index: ${fibonacci.id}, Number: ${fibonacci.number}', style: AppTextTheme.text(context).bodyMedium),
