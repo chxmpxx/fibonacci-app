@@ -1,6 +1,9 @@
 import 'package:fibonacci_app/constants/colors.dart';
 import 'package:fibonacci_app/constants/text_theme.dart';
 import 'package:fibonacci_app/controllers/fibonacci_controller.dart';
+import 'package:fibonacci_app/models/fibonacci_model.dart';
+import 'package:fibonacci_app/widgets/fibonacci_bottom_sheet_widget.dart';
+import 'package:fibonacci_app/widgets/fibonacci_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +16,7 @@ class FibonacciPage extends StatefulWidget {
 
 class _FibonacciPageState extends State<FibonacciPage> {
   late FibonacciController fibonacciController;
+  Fibonacci? latestFibonacci;
 
   @override
   void initState() {
@@ -25,11 +29,13 @@ class _FibonacciPageState extends State<FibonacciPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+
     return Consumer<FibonacciController>(
       builder: (context, fibController, child) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Example'),
+            title: Text('Example', style: AppTextTheme.text(context).titleMedium),
             shape: const Border(
               bottom: BorderSide(color: grey)
             ),
@@ -39,17 +45,27 @@ class _FibonacciPageState extends State<FibonacciPage> {
             itemBuilder: (context, index) {
               final fibonacci = fibController.fibonacciList[index];
               return GestureDetector(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      Text('Index: ${fibonacci.id}, Number: ${fibonacci.number}', style: AppTextTheme.text(context).bodyMedium),
-                      const Spacer(),
-                      fibonacci.group.icon
-                    ],
-                  ),
-                ),
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {
+                  fibController.addFibonacciItem(fibonacci);
+                  final fibonacciData = await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white,
+                    clipBehavior: Clip.hardEdge,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(size.height / 40)),
+                    ),
+                    constraints: const BoxConstraints(minWidth: double.infinity),
+                    builder: (ctx) {
+                      return FibonacciBottomSheetWidget(groupId: fibonacci.group.id, fibonacciId: fibonacci.id);
+                    }
+                  );
+                  if (fibonacciData != null) {
+                    latestFibonacci = fibonacciData;
+                  }
+                },
+                child: FibonacciItemWidget(fibonacci: fibonacci, highlightColor: latestFibonacci?.id == fibonacci.id ? red : null)
               );
             }
           )

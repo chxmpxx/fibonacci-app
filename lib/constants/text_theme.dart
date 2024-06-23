@@ -6,7 +6,7 @@ class AppTextTheme {
 
     return TextTheme(
       titleMedium: TextStyle(
-        fontSize: isPhone ? 18 : 22,
+        fontSize: isPhone ? 20 : 24,
         fontWeight: FontWeight.w500,
       ),
       bodyMedium: TextStyle(

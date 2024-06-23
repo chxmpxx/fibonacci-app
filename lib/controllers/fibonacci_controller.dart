@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 class FibonacciController extends ChangeNotifier {
   List<Fibonacci> fibonacciList = [];
+  Map<String, List<Fibonacci>> fibonacciGroupList = {};
+
   List<Group> groupList = [
     Group(id: '1', icon: const Icon(Icons.crop_square)),
     Group(id: '2', icon: const Icon(Icons.close)),
@@ -15,6 +17,26 @@ class FibonacciController extends ChangeNotifier {
   void initFibonacci() {
     fibonacciList = _generateFibonacci(51);
     notifyListeners();
+  }
+
+  void addFibonacciItem(Fibonacci fibonacci) {
+    fibonacciList.remove(fibonacci);
+    if (fibonacciGroupList.containsKey(fibonacci.group.id)) {
+      // todo: sort
+      fibonacciGroupList[fibonacci.group.id]!.add(fibonacci);
+    } else {
+      fibonacciGroupList[fibonacci.group.id] = [fibonacci];
+    }
+    notifyListeners();
+  }
+
+  void removeFibonacciItem(Fibonacci fibonacci) {
+    if (fibonacciGroupList.containsKey(fibonacci.group.id)) {
+      fibonacciGroupList[fibonacci.group.id]!.remove(fibonacci);
+      // todo: sort
+      fibonacciList.add(fibonacci);
+      notifyListeners();
+    }
   }
 
   List<Fibonacci> _generateFibonacci(int n) {
